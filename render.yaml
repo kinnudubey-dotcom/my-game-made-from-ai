@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: dodge-game
+    env: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /game.html
+
