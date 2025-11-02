@@ -8,6 +8,9 @@ services:
       - path: /*
         name: X-Robots-Tag
         value: noindex
+      - path: /*
+        name: Content-Type
+        value: text/html; charset=utf-8
     routes:
       - type: rewrite
         source: /*
