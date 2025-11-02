@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge the Angry Man!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2d1b1e 0%, #5a2a2e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        #cutsceneCanvas {
+            display: block;
+        }
+        
+        #revengeCutscene {
+            background: transparent;
+        }
+        
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            background: rgba(45, 27, 30, 0.95);
+            z-index: 1000;
+        }
+        
+        .screen h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .screen p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            min-width: 150px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #45b7b8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        #difficultyButtons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        #trollMessage {
+            background: rgba(0,0,0,0.8);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #ff4757;
+            max-width: 500px;
+            animation: trollShake 0.5s ease-in-out infinite;
+        }
+        
+        #trollMessage h2 {
+            color: #ff4757;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        #trollMessage p {
+            color: #ffa502;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        #continueBtn {
+            background: #ff4757;
+        }
+        
+        #continueBtn:hover {
+            background: #ff3742;
+            transform: scale(1.05);
+        }
+        
+        @keyframes trollShake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-1deg); }
+            75% { transform: rotate(1deg); }
+        }
+        
+        #gameUI {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 1.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+        
+        #rageMeter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+        
+        #warningMessage {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            z-index: 100;
+            text-align: center;
+            border: 4px solid #ff4757;
+            box-shadow: 0 0 30px rgba(255, 71, 87, 0.8);
+            animation: warningPulse 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes warningPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.1); opacity: 0.8; }
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            z-index: 100;
+        }
+        
+        @media (max-width: 768px) {
+            #instructions {
+                font-size: 0.8em;
+                padding: 10px;
+            }
+        }
+        
+        #authorName {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 1em;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        
+        #pauseButton {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.9);
+            color: #2d1b1e;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        #pauseButton:hover {
+            background: white;
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(45, 27, 30, 0.95);
+            z-index: 10000;
+        }
+        
+        #pauseScreen h2 {
+            font-size: 3em;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        #pauseDifficultyButtons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="instructions">
+            <h3>Controls:</h3>
+            <p>↑ Jump (LOW) | ↓ Bend (OVERHEAD) | Click Punch (MID)</p>
+            <p>←→ Move | ESC Pause | C Attack when rage full</p>
+        </div>
+        
+        <div id="authorName">Divyansh Dubey</div>
+        
+        <button id="pauseButton" style="display: none;">⏸ PAUSE</button>
+        
+        <div id="pauseScreen">
+            <h2>PAUSED</h2>
+            <p style="color: white; font-size: 1.2em; margin-bottom: 30px;">Change Difficulty:</p>
+            <div id="pauseDifficultyButtons">
+                <button id="pauseEasyBtn">Easy 😎</button>
+                <button id="pauseNormalBtn">Normal 😐</button>
+                <button id="pauseHardBtn">Hard 😤</button>
+                <button id="pauseNightmareBtn">Nightmare 😈</button>
+            </div>
+        </div>
+        
+        <div id="difficultyScreen" class="screen">
+            <h1>Choose Your Difficulty</h1>
+            <p>How brave are you?</p>
+            <div id="difficultyButtons">
+                <button id="easyBtn">Easy 😎</button>
+                <button id="normalBtn">Normal 😐</button>
+                <button id="hardBtn">Hard 😤</button>
+                <button id="nightmareBtn">Nightmare 😈</button>
+            </div>
+            <div id="trollMessage" style="display: none;">
+                <h2>Bruh why did you pick easy on the starting? 😂</h2>
+                <p>You really chose the baby mode? Come on, man!</p>
+                <button id="continueBtn">Fine, let's go anyway...</button>
+            </div>
+        </div>
+        
+        <div id="gameUI" style="display: none;">
+            <div id="score">Score: 0</div>
+            <div id="lives">Lives: 3</div>
+        </div>
+        
+        <div id="rageMeter" style="display: none;">
+            <div>Rage Meter</div>
+            <div style="width: 200px; height: 20px; background: rgba(255,255,255,0.3); border: 2px solid white; border-radius: 10px; margin-top: 5px;">
+                <div id="rageFill" style="height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffa8a8); width: 0%; border-radius: 8px; transition: width 0.3s;"></div>
+            </div>
+            <div id="rageText" style="margin-top: 5px; font-size: 0.9em;">Press SPACE to hit back!</div>
+        </div>
+        
+        <div id="warningMessage" style="display: none;"></div>
+        
+        <div id="dialogueBox" style="position: absolute; top: 30%; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 15px; font-size: 1em; z-index: 100; max-width: 300px; display: none;">
+            <p id="dialogueText"></p>
+        </div>
+        
+        <div id="levelCompleteScreen" class="screen" style="display: none;">
+            <h2>Level Complete!</h2>
+            <p style="font-size: 1.5em; margin-bottom: 30px;">Rage meter full!</p>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">Press C to attack back!</p>
+        </div>
+        
+        <div id="revengeCutscene" class="screen" style="display: none;">
+            <canvas id="cutsceneCanvas"></canvas>
+        </div>
+        
+        <div id="gameOverScreen" class="screen" style="display: none;">
+            <h2>Game Over!</h2>
+            <p id="finalScore">Final Score: 0</p>
+            <button id="restartBtn">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Game state
+        let gameState = 'difficulty';
+        let difficulty = 'normal';
+        let score = 0;
+        let lives = 3;
+        let rage = 0;
+        let maxRage = 100;
+        let isPaused = false;
+        
+        // Characters
+        const player = { x: 150, y: canvas.height - 150, width: 40, height: 80, isJumping: false, isBending: false, isHitting: false, jumpOffset: 0, jumpStartTime: 0 };
+        const thrownObjects = [];
+        
+        // Input tracking
+        const keys = { left: false, right: false, up: false, down: false };
+        
+        // House dimensions
+        const houseX = canvas.width - 200;
+        const houseWidth = 200;
+        const houseHeight = canvas.height;
+        const windowX = houseX + 60;
+        const windowY = canvas.height / 2 - 60;
+        const windowWidth = 80;
+        const windowHeight = 100;
+        
+        // Timing
+        let lastThrowTime = 0;
+        let throwInterval = 1500;
+        let warningTime = 0;
+        let nextObjectType = null;
+        let lastThrownType = null;
+        let dialogueTimer = 0;
+        let currentDialogue = null;
+        let successfulDodges = 0;
+        let level = 1;
+        let waitingForRevenge = false;
+        
+        // Audio context
+        let audioContext = null;
+        
+        // Cutscene canvas
+        const cutsceneCanvas = document.getElementById('cutsceneCanvas');
+        const cutsceneCtx = cutsceneCanvas.getContext('2d');
+        cutsceneCanvas.width = window.innerWidth;
+        cutsceneCanvas.height = window.innerHeight;
+        
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+        
+        function playSound(freq, dur, type = 'sine') {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+            osc.type = type;
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + dur);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + dur);
+        }
+        
+        // Difficulty settings
+        function getDifficultySettings() {
+            switch(difficulty) {
+                case 'easy':
+                    return { throwInterval: 2000, objectSpeed: 2, lives: 5, rageGain: 25, name: 'Easy' };
+                case 'normal':
+                    return { throwInterval: 1500, objectSpeed: 3, lives: 3, rageGain: 20, name: 'Normal' };
+                case 'hard':
+                    return { throwInterval: 1000, objectSpeed: 4, lives: 2, rageGain: 15, name: 'Hard' };
+                case 'nightmare':
+                    return { throwInterval: 800, objectSpeed: 5, lives: 1, rageGain: 10, name: 'Nightmare' };
+            }
+        }
+        
+        // Drawing functions
+        function drawBackground() {
+            // Halloween night sky
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Stars
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * canvas.width * 0.7;
+                const y = Math.random() * canvas.height * 0.5;
+                ctx.globalAlpha = Math.random();
+                ctx.fillRect(x, y, 1, 1);
+            }
+            ctx.globalAlpha = 1;
+            
+            // Ground
+            ctx.fillStyle = '#2c2c2c';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Halloween house
+            drawHouse();
+        }
+        
+        function drawHouse() {
+            // House body
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(houseX, canvas.height - 250, houseWidth, 250);
+            
+            // House roof
+            ctx.fillStyle = '#ff6347';
+            ctx.beginPath();
+            ctx.moveTo(houseX - 20, canvas.height - 250);
+            ctx.lineTo(houseX + houseWidth / 2, canvas.height - 320);
+            ctx.lineTo(houseX + houseWidth + 20, canvas.height - 250);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Window with angry man
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(windowX, windowY, windowWidth, windowHeight);
+            
+            // Window frame
+            ctx.strokeStyle = '#ff6347';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(windowX, windowY, windowWidth, windowHeight);
+            
+            // Window cross
+            ctx.beginPath();
+            ctx.moveTo(windowX, windowY + windowHeight / 2);
+            ctx.lineTo(windowX + windowWidth, windowY + windowHeight / 2);
+            ctx.moveTo(windowX + windowWidth / 2, windowY);
+            ctx.lineTo(windowX + windowWidth / 2, windowY + windowHeight);
+            ctx.stroke();
+            
+            // Angry man in window
+            drawAngryManInWindow();
+        }
+        
+        function drawAngryManInWindow() {
+            const centerX = windowX + windowWidth / 2;
+            const centerY = windowY + windowHeight / 2;
+            const shake = Math.sin(Date.now() / 100) * 2;
+            
+            ctx.save();
+            ctx.translate(centerX + shake, centerY);
+            
+            // Head
+            ctx.fillStyle = '#fdbcb4';
+            ctx.beginPath();
+            ctx.arc(0, -10, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hair
+            ctx.fillStyle = '#2c3e50';
+            ctx.beginPath();
+            ctx.ellipse(0, -22, 15, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Angry eyes
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(-8, -8, 3, 0, Math.PI * 2);
+            ctx.arc(8, -8, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Angry eyebrows
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-12, -14);
+            ctx.lineTo(-5, -16);
+            ctx.moveTo(5, -16);
+            ctx.lineTo(12, -14);
+            ctx.stroke();
+            
+            // Body
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(-10, 5, 20, 25);
+            
+            ctx.restore();
+        }
+        
+        function drawPlayer() {
+            // Calculate jump animation
+            if (player.isJumping) {
+                const jumpDuration = Date.now() - player.jumpStartTime;
+                if (jumpDuration > 600) {
+                    player.isJumping = false;
+                    player.jumpOffset = 0;
+                } else {
+                    // Smooth jump arc
+                    const progress = jumpDuration / 600;
+                    player.jumpOffset = Math.sin(progress * Math.PI) * 150;
+                }
+            }
+            
+            ctx.save();
+            ctx.translate(player.x, player.y - player.jumpOffset);
+            
+            // Bend transformation
+            if (player.isBending) {
+                ctx.scale(1, 0.7);
+                ctx.rotate(0.3);
+            }
+            
+            // Head
+            ctx.fillStyle = '#fdbcb4';
+            ctx.beginPath();
+            ctx.arc(0, -40, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hair
+            ctx.fillStyle = '#8b4513';
+            ctx.beginPath();
+            ctx.ellipse(0, -50, 18, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(-8, -45, 3, 3);
+            ctx.fillRect(5, -45, 3, 3);
+            
+            // Body
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(-12, -25, 24, 40);
+            
+            // Arms
+            ctx.fillStyle = '#fdbcb4';
+            ctx.fillRect(-15, -20, 5, 25);
+            ctx.fillRect(10, -20, 5, 25);
+            
+            // Legs
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(-8, 15, 6, 25);
+            ctx.fillRect(2, 15, 6, 25);
+            
+            // Hit effect
+            if (player.isHitting) {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-20, -50, 40, 100);
+                ctx.globalAlpha = 1;
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawThrownObject(obj) {
+            ctx.save();
+            ctx.translate(obj.x, obj.y);
+            
+            // Glow effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = obj.color;
+            
+            // Background circle
+            ctx.fillStyle = obj.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, obj.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Object emoji
+            ctx.font = '28px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.fillText(obj.emoji, 0, 0);
+            
+            ctx.restore();
+        }
+        
+        let currentWarningType = null;
+        
+        function showWarning(type) {
+            const warningDiv = document.getElementById('warningMessage');
+            const colors = {
+                overhead: { color: '#ff6b6b', text: 'OVERHEAD!' },
+                mid: { color: '#4ecdc4', text: 'MID!' },
+                low: { color: '#45b7b8', text: 'LOW!' }
+            };
+            
+            warningDiv.style.display = 'block';
+            warningDiv.style.borderColor = colors[type].color;
+            warningDiv.style.boxShadow = `0 0 30px ${colors[type].color}80`;
+            warningDiv.textContent = colors[type].text;
+        }
+        
+        function hideWarning() {
+            const warningDiv = document.getElementById('warningMessage');
+            warningDiv.style.display = 'none';
+        }
+        
+        function throwObject(type) {
+            const types = {
+                overhead: { emoji: '🍎', y: player.y - 100, speed: 3, color: '#ff6b6b' },
+                mid: { emoji: '📱', y: player.y + 20, speed: 2.5, color: '#4ecdc4' },
+                low: { emoji: '⚽', y: canvas.height - 100, speed: 3.5, color: '#45b7b8' }
+            };
+            
+            const t = types[type];
+            const settings = getDifficultySettings();
+            thrownObjects.push({
+                x: windowX + windowWidth / 2,
+                y: t.y,
+                radius: 25,
+                speed: t.speed * (settings.objectSpeed / 3),
+                type: type,
+                emoji: t.emoji,
+                color: t.color
+            });
+            
+            // Play "Take that!" sound
+            playSound(250, 0.15, 'sawtooth');
+            setTimeout(() => playSound(200, 0.1, 'square'), 100);
+            
+            hideWarning();
+        }
+        
+        function updateObjects() {
+            for (let i = thrownObjects.length - 1; i >= 0; i--) {
+                const obj = thrownObjects[i];
+                obj.x -= obj.speed;
+                
+                if (obj.x < -50) {
+                    // Player dodged successfully
+                    successfulDodges++;
+                    
+                    // Gain rage from successful dodges (slow)
+                    if (!waitingForRevenge) {
+                        rage = Math.min(maxRage, rage + 3);
+                        updateRageMeter();
+                    }
+                    
+                    if (successfulDodges % 3 === 0 && !waitingForRevenge) {
+                        const dialogues = [
+                            "Can't you stop?!",
+                            "Dodge this!",
+                            "You're so annoying!",
+                            "Why won't you just get hit?!"
+                        ];
+                        showDialogue(dialogues[Math.floor(Math.random() * dialogues.length)]);
+                    }
+                    thrownObjects.splice(i, 1);
+                    continue;
+                }
+                
+                // Collision detection
+                if (checkCollision(obj)) {
+                    handleHit();
+                    thrownObjects.splice(i, 1);
+                }
+            }
+        }
+        
+        function checkCollision(obj) {
+            // Only check collision if player is touching the circle
+            const playerCenterX = player.x;
+            const playerCenterY = player.y - player.jumpOffset;
+            const dx = playerCenterX - obj.x;
+            const dy = playerCenterY - obj.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > obj.radius + 30) return false;
+            
+            // Check if dodging
+            if (player.isJumping && obj.type === 'low') return false;
+            if (player.isHitting && obj.type === 'mid') return false;
+            if (player.isBending && obj.type === 'overhead') return false;
+            
+            return true;
+        }
+        
+        function handleHit() {
+            lives--;
+            updateLives();
+            
+            const settings = getDifficultySettings();
+            rage = Math.min(maxRage, rage + settings.rageGain);
+            updateRageMeter();
+            
+            // Hit sound and effect
+            playSound(150, 0.2, 'square');
+            setTimeout(() => playSound(100, 0.1, 'sawtooth'), 50);
+            
+            // Show response dialogue
+            if (!waitingForRevenge) {
+                const hitDialogues = [
+                    "Gotcha!",
+                    "Take that!",
+                    "Can't dodge everything!",
+                    "Nah I can't, you made me angry!"
+                ];
+                setTimeout(() => showDialogue(hitDialogues[Math.floor(Math.random() * hitDialogues.length)]), 300);
+            }
+            
+            if (lives <= 0) {
+                gameOver();
+            }
+        }
+        
+        function updateRageMeter() {
+            const rageFill = document.getElementById('rageFill');
+            const rageText = document.getElementById('rageText');
+            
+            rageFill.style.width = (rage / maxRage * 100) + '%';
+            
+            if (rage >= maxRage) {
+                rageFill.style.background = 'linear-gradient(90deg, #ff0000, #ff3333)';
+                rageText.textContent = 'RAGE FULL! Press C to attack!';
+                rageText.style.color = '#ff0000';
+                waitingForRevenge = true;
+                showDialogue("I'm done! You're going down!");
+            } else {
+                rageFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ffa8a8)';
+                rageText.textContent = `Rage: ${rage}/${maxRage}`;
+                rageText.style.color = 'white';
+            }
+        }
+        
+        function showDialogue(text) {
+            const dialogueBox = document.getElementById('dialogueBox');
+            const dialogueText = document.getElementById('dialogueText');
+            dialogueText.textContent = text;
+            dialogueBox.style.display = 'block';
+            dialogueTimer = Date.now();
+        }
+        
+        function hideDialogue() {
+            const dialogueBox = document.getElementById('dialogueBox');
+            dialogueBox.style.display = 'none';
+        }
+        
+        function hitBack() {
+            if (rage >= maxRage) {
+                rage = 0;
+                updateRageMeter();
+                score += 50;
+                updateScore();
+                playSound(200, 0.1, 'square');
+            }
+        }
+        
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score}`;
+        }
+        
+        function gameOver() {
+            gameState = 'gameOver';
+            document.getElementById('finalScore').textContent = `Final Score: ${score}`;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            playSound(100, 0.5, 'sawtooth');
+        }
+        
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (gameState === 'playing' && !isPaused) {
+                const now = Date.now();
+                
+                // Handle movement input
+                if (keys.left) player.x = Math.max(50, player.x - 5);
+                if (keys.right) player.x = Math.min(windowX - 80, player.x + 5);
+                player.isBending = keys.down;
+                
+                // Throw objects randomly
+                if (now - lastThrowTime > throwInterval) {
+                    const types = ['overhead', 'mid', 'low'];
+                    let selectedType = types[Math.floor(Math.random() * types.length)];
+                    
+                    nextObjectType = selectedType;
+                    currentWarningType = nextObjectType;
+                    warningTime = now;
+                    showWarning(nextObjectType);
+                    throwInterval = getDifficultySettings().throwInterval * (0.5 + Math.random());
+                    lastThrowTime = now;
+                }
+                
+                // Actually throw after warning
+                if (nextObjectType && now - warningTime > 1000) {
+                    throwObject(nextObjectType);
+                    lastThrownType = nextObjectType;
+                    nextObjectType = null;
+                    currentWarningType = null;
+                }
+                
+                updateObjects();
+                score += 1;
+                updateScore();
+                
+                // Auto-hide dialogue after 2 seconds
+                if (dialogueTimer > 0 && now - dialogueTimer > 2000) {
+                    hideDialogue();
+                    dialogueTimer = 0;
+                }
+            }
+            
+            // Draw everything
+            drawBackground();
+            drawPlayer();
+            thrownObjects.forEach(drawThrownObject);
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (gameState === 'playing' && waitingForRevenge && e.key === 'c') {
+                triggerRevengeCutscene();
+                return;
+            }
+            if (gameState !== 'playing') return;
+            
+            if (e.key === 'w' || e.key === 'ArrowUp') {
+                if (!player.isJumping) {
+                    player.isJumping = true;
+                    player.jumpStartTime = Date.now();
+                    playSound(300, 0.1, 'sine');
+                }
+            }
+            if (e.key === 's' || e.key === 'ArrowDown') {
+                keys.down = true;
+            }
+            if (e.key === 'a' || e.key === 'ArrowLeft') {
+                keys.left = true;
+            }
+            if (e.key === 'd' || e.key === 'ArrowRight') {
+                keys.right = true;
+            }
+            if (e.key === ' ') {
+                hitBack();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 's' || e.key === 'ArrowDown') {
+                keys.down = false;
+            }
+            if (e.key === 'a' || e.key === 'ArrowLeft') {
+                keys.left = false;
+            }
+            if (e.key === 'd' || e.key === 'ArrowRight') {
+                keys.right = false;
+            }
+        });
+        
+        document.addEventListener('mousedown', (e) => {
+            if (gameState === 'playing') {
+                player.isHitting = true;
+                playSound(250, 0.1, 'square');
+                setTimeout(() => player.isHitting = false, 400);
+            }
+        });
+        
+        // Difficulty selection
+        function selectDifficulty(diff) {
+            difficulty = diff;
+            startGame();
+        }
+        
+        function startGame() {
+            const settings = getDifficultySettings();
+            throwInterval = settings.throwInterval;
+            lives = settings.lives;
+            
+            document.getElementById('difficultyScreen').style.display = 'none';
+            document.getElementById('gameUI').style.display = 'block';
+            document.getElementById('rageMeter').style.display = 'block';
+            document.getElementById('pauseButton').style.display = 'block';
+            gameState = 'playing';
+            isPaused = false;
+            waitingForRevenge = false;
+            successfulDodges = 0;
+            
+            // Start the conversation
+            setTimeout(() => {
+                showDialogue("You're gonna face some things!");
+            }, 1000);
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                document.getElementById('pauseScreen').style.display = 'flex';
+            } else {
+                document.getElementById('pauseScreen').style.display = 'none';
+            }
+        }
+        
+        function pauseSelectDifficulty(diff) {
+            difficulty = diff;
+            const settings = getDifficultySettings();
+            throwInterval = settings.throwInterval;
+            lives = settings.lives;
+            updateLives();
+            togglePause();
+        }
+        
+        function updateLives() {
+            document.getElementById('lives').textContent = `Lives: ${lives}`;
+        }
+        
+        function triggerRevengeCutscene() {
+            gameState = 'cutscene';
+            document.getElementById('revengeCutscene').style.display = 'flex';
+            playRevengeAnimation();
+        }
+        
+        function playRevengeAnimation() {
+            const cutsceneCanvas = document.getElementById('cutsceneCanvas');
+            const cutsceneCtx = cutsceneCanvas.getContext('2d');
+            cutsceneCanvas.width = window.innerWidth;
+            cutsceneCanvas.height = window.innerHeight;
+            
+            let frame = 0;
+            const totalFrames = 300; // 5 seconds at 60fps
+            
+            function animate() {
+                cutsceneCtx.clearRect(0, 0, cutsceneCanvas.width, cutsceneCanvas.height);
+                
+                // Draw background
+                const gradient = cutsceneCtx.createLinearGradient(0, 0, 0, cutsceneCanvas.height);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(1, '#0f3460');
+                cutsceneCtx.fillStyle = gradient;
+                cutsceneCtx.fillRect(0, 0, cutsceneCanvas.width, cutsceneCanvas.height);
+                
+                // Draw player running to house
+                const playerProgress = frame / totalFrames;
+                const playerX = 150 + (cutsceneCanvas.width - 300) * playerProgress;
+                const playerY = cutsceneCanvas.height / 2;
+                
+                cutsceneCtx.save();
+                cutsceneCtx.translate(playerX, playerY);
+                
+                // Player body
+                cutsceneCtx.fillStyle = '#fdbcb4';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.arc(0, -40, 20, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                cutsceneCtx.fillStyle = '#3498db';
+                cutsceneCtx.fillRect(-15, -20, 30, 40);
+                
+                // Arms swinging
+                const armSwing = Math.sin(frame * 0.5) * 30;
+                cutsceneCtx.fillStyle = '#fdbcb4';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.arc(-20, -10 + armSwing, 8, 0, Math.PI * 2);
+                cutsceneCtx.arc(20, -10 - armSwing, 8, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                cutsceneCtx.restore();
+                
+                // Draw house
+                const houseSize = 100;
+                const houseCenterX = cutsceneCanvas.width - houseSize / 2;
+                cutsceneCtx.fillStyle = '#8b4513';
+                cutsceneCtx.fillRect(houseCenterX - houseSize / 2, cutsceneCanvas.height - houseSize * 1.5, houseSize, houseSize);
+                
+                // Roof
+                cutsceneCtx.fillStyle = '#ff6347';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.moveTo(houseCenterX - houseSize / 2 - 20, cutsceneCanvas.height - houseSize * 1.5);
+                cutsceneCtx.lineTo(houseCenterX, cutsceneCanvas.height - houseSize * 1.5 - 40);
+                cutsceneCtx.lineTo(houseCenterX + houseSize / 2 + 20, cutsceneCanvas.height - houseSize * 1.5);
+                cutsceneCtx.closePath();
+                cutsceneCtx.fill();
+                
+                // Window
+                const windowSize = 30;
+                cutsceneCtx.fillStyle = '#ffd700';
+                cutsceneCtx.fillRect(houseCenterX - windowSize / 2, cutsceneCanvas.height - houseSize * 1.5 + 20, windowSize, windowSize);
+                
+                // Angry man in window (frightened expression)
+                cutsceneCtx.save();
+                cutsceneCtx.translate(houseCenterX, cutsceneCanvas.height - houseSize * 1.5 + 35);
+                
+                // Head
+                cutsceneCtx.fillStyle = '#fdbcb4';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.arc(0, -8, 10, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                // Terrified eyes
+                cutsceneCtx.fillStyle = '#fff';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.arc(-5, -6, 4, 0, Math.PI * 2);
+                cutsceneCtx.arc(5, -6, 4, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                cutsceneCtx.fillStyle = '#000';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.arc(-5, -6, 2, 0, Math.PI * 2);
+                cutsceneCtx.arc(5, -6, 2, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                // Shocked mouth
+                cutsceneCtx.fillStyle = '#000';
+                cutsceneCtx.beginPath();
+                cutsceneCtx.ellipse(0, 0, 4, 6, 0, 0, Math.PI * 2);
+                cutsceneCtx.fill();
+                
+                cutsceneCtx.restore();
+                
+                // Impact effect when player reaches house
+                if (playerProgress > 0.8) {
+                    const impactStrength = (playerProgress - 0.8) * 5;
+                    cutsceneCtx.save();
+                    cutsceneCtx.globalAlpha = 0.3;
+                    cutsceneCtx.fillStyle = '#ff0000';
+                    cutsceneCtx.beginPath();
+                    cutsceneCtx.arc(houseCenterX, cutsceneCanvas.height - houseSize * 1.5 + houseSize / 2, 50 * impactStrength, 0, Math.PI * 2);
+                    cutsceneCtx.fill();
+                    cutsceneCtx.restore();
+                    
+                    // Shake effect
+                    cutsceneCtx.translate(Math.sin(frame * 50) * 10, Math.cos(frame * 50) * 10);
+                }
+                
+                frame++;
+                
+                if (frame < totalFrames) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Cutscene complete
+                    setTimeout(() => {
+                        document.getElementById('revengeCutscene').style.display = 'none';
+                        rage = 0;
+                        lives = 3;
+                        waitingForRevenge = false;
+                        level++;
+                        updateRageMeter();
+                        updateLives();
+                        updateScore();
+                        gameState = 'playing';
+                        showDialogue(`Level ${level}! Keep going!`);
+                    }, 500);
+                }
+            }
+            
+            animate();
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('difficultyScreen').style.display = 'flex';
+            document.getElementById('difficultyButtons').style.display = 'flex';
+            document.getElementById('trollMessage').style.display = 'none';
+            document.getElementById('revengeCutscene').style.display = 'none';
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            score = 0;
+            rage = 0;
+            level = 1;
+            waitingForRevenge = false;
+            player.x = 150;
+            thrownObjects.length = 0;
+            gameState = 'difficulty';
+        }
+        
+        // Button handlers
+        document.getElementById('easyBtn').addEventListener('click', () => selectDifficulty('easy'));
+        document.getElementById('normalBtn').addEventListener('click', () => selectDifficulty('normal'));
+        document.getElementById('hardBtn').addEventListener('click', () => selectDifficulty('hard'));
+        document.getElementById('nightmareBtn').addEventListener('click', () => selectDifficulty('nightmare'));
+        document.getElementById('continueBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+        
+        // Pause button handlers
+        document.getElementById('pauseButton').addEventListener('click', togglePause);
+        document.getElementById('pauseEasyBtn').addEventListener('click', () => pauseSelectDifficulty('easy'));
+        document.getElementById('pauseNormalBtn').addEventListener('click', () => pauseSelectDifficulty('normal'));
+        document.getElementById('pauseHardBtn').addEventListener('click', () => pauseSelectDifficulty('hard'));
+        document.getElementById('pauseNightmareBtn').addEventListener('click', () => pauseSelectDifficulty('nightmare'));
+        
+        // ESC key to pause
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && gameState === 'playing') {
+                togglePause();
+            }
+        });
+        
+        // Initialize
+        initAudio();
+        updateScore();
+        updateLives();
+        gameLoop();
+    </script>
+</body>
+</html>

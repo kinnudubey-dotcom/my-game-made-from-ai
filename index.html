@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge the Angry Man!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="difficultyScreen">
+            <h1>Choose Your Difficulty</h1>
+            <p>How brave are you?</p>
+            <div id="difficultyButtons">
+                <button id="easyBtn" class="difficulty-btn">Easy 😎</button>
+                <button id="normalBtn" class="difficulty-btn">Normal 😐</button>
+                <button id="hardBtn" class="difficulty-btn">Hard 😤</button>
+                <button id="nightmareBtn" class="difficulty-btn">Nightmare 😈</button>
+            </div>
+            <div id="trollMessage" style="display: none;">
+                <h2>Bruh why did you pick easy on the starting? 😂</h2>
+                <p>You really chose the baby mode? Come on, man!</p>
+                <button id="continueBtn">Fine, let's go anyway...</button>
+            </div>
+        </div>
+        
+        <div id="introAnimation" style="display: none;">
+            <div id="introGameArea">
+                <div id="introAngryMan"></div>
+                <div id="introPlayer"></div>
+                <div id="introDialogueBox">
+                    <p id="introDialogueText"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameScreen" style="display: none;">
+            <div id="ui">
+                <div id="score">Score: 0</div>
+                <div id="lives">Lives: 3</div>
+            </div>
+            
+            <div id="rageMeter">
+                <div>Rage Meter</div>
+                <div id="rageBar">
+                    <div id="rageFill"></div>
+                </div>
+                <div id="rageText">Press SPACE to hit back!</div>
+            </div>
+            
+            <div id="gameArea">
+                <div id="angryMan"></div>
+                <div id="player"></div>
+                <div id="dialogueBox" style="display: none;">
+                    <p id="dialogueText"></p>
+                </div>
+                <div id="warningMessage" style="display: none;">
+                    <p id="warningText"></p>
+                </div>
+            </div>
+            
+            <div id="gameOverScreen" style="display: none;">
+                <h2>Game Over!</h2>
+                <p id="finalScore">Final Score: 0</p>
+                <button id="restartBtn">Play Again</button>
+            </div>
+        </div>
+        
+        <div id="instructions">
+            <h3>Controls:</h3>
+            <p>WASD or Arrow Keys to move</p>
+            <p>↑ - Jump to dodge LOW objects (⚽🏀🥎🎾)</p>
+            <p>↓ - Bend back to dodge OVERHEAD objects (🍎🍌🥕🍞)</p>
+            <p>Left Click - Punch MID objects (📱💻📚📖)</p>
+            <p>← → - Move left/right</p>
+            <p>SPACE - Hit back when rage is full</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

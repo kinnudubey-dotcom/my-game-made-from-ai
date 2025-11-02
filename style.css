@@ -1,0 +1,874 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#gameContainer {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#gameScreen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+}
+
+#score, #lives {
+    margin-bottom: 10px;
+}
+
+#rageMeter {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+}
+
+#rageBar {
+    width: 200px;
+    height: 20px;
+    background: rgba(255,255,255,0.3);
+    border: 2px solid white;
+    border-radius: 10px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+#rageFill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ff8e8e, #ffa8a8);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 8px;
+}
+
+#rageFill.full {
+    background: linear-gradient(90deg, #ff0000, #ff3333, #ff6666);
+    animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+}
+
+#gameArea {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+    overflow: hidden;
+}
+
+#angryMan {
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    animation: angryShake 0.5s infinite;
+    width: 80px;
+    height: 160px;
+    position: relative;
+}
+
+#angryMan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65px;
+    height: 65px;
+    background: #fdbcb4;
+    border-radius: 50%;
+    border: 3px solid #e8a598;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+}
+
+#angryMan::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 40px;
+    background: #2c3e50;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+#angryMan .eye {
+    position: absolute;
+    top: 20px;
+    width: 10px;
+    height: 10px;
+    background: #e74c3c;
+    border-radius: 50%;
+    border: 2px solid #c0392b;
+}
+
+#angryMan .eye.left {
+    left: 20px;
+}
+
+#angryMan .eye.right {
+    right: 20px;
+}
+
+#angryMan .eyebrow {
+    position: absolute;
+    top: 10px;
+    width: 15px;
+    height: 4px;
+    background: #2c3e50;
+    border-radius: 2px;
+}
+
+#angryMan .eyebrow.left {
+    left: 15px;
+    transform: rotate(-15deg);
+}
+
+#angryMan .eyebrow.right {
+    right: 15px;
+    transform: rotate(15deg);
+}
+
+#angryMan .body {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 75px;
+    background: #e74c3c;
+    border-radius: 10px;
+    border: 3px solid #c0392b;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+}
+
+#angryMan .arm {
+    position: absolute;
+    top: 70px;
+    width: 12px;
+    height: 45px;
+    background: #fdbcb4;
+    border-radius: 6px;
+    border: 2px solid #e8a598;
+}
+
+#angryMan .arm.left {
+    left: 5px;
+}
+
+#angryMan .arm.right {
+    right: 5px;
+}
+
+#angryMan .leg {
+    position: absolute;
+    top: 140px;
+    width: 18px;
+    height: 45px;
+    background: #34495e;
+    border-radius: 9px;
+    border: 2px solid #2c3e50;
+}
+
+#angryMan .leg.left {
+    left: 20px;
+}
+
+#angryMan .leg.right {
+    right: 20px;
+}
+
+@keyframes angryShake {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    25% { transform: translateY(-50%) rotate(-2deg); }
+    75% { transform: translateY(-50%) rotate(2deg); }
+}
+
+#player {
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: all 0.1s ease;
+    width: 35px;
+    height: 80px;
+    position: relative;
+}
+
+#player::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 28px;
+    background: #fdbcb4;
+    border-radius: 50%;
+    border: 2px solid #e8a598;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#player::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 18px;
+    background: #8b4513;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+#player .eye {
+    position: absolute;
+    top: 8px;
+    width: 4px;
+    height: 4px;
+    background: #2c3e50;
+    border-radius: 50%;
+}
+
+#player .eye.left {
+    left: 8px;
+}
+
+#player .eye.right {
+    right: 8px;
+}
+
+#player .body {
+    position: absolute;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25px;
+    height: 35px;
+    background: #3498db;
+    border-radius: 6px;
+    border: 2px solid #2980b9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#player .arm {
+    position: absolute;
+    top: 32px;
+    width: 6px;
+    height: 20px;
+    background: #fdbcb4;
+    border-radius: 3px;
+    border: 1px solid #e8a598;
+}
+
+#player .arm.left {
+    left: 3px;
+}
+
+#player .arm.right {
+    right: 3px;
+}
+
+#player .leg {
+    position: absolute;
+    top: 63px;
+    width: 8px;
+    height: 20px;
+    background: #34495e;
+    border-radius: 4px;
+    border: 1px solid #2c3e50;
+}
+
+#player .leg.left {
+    left: 8px;
+}
+
+#player .leg.right {
+    right: 8px;
+}
+
+#player.jumping {
+    animation: jump 0.6s ease;
+}
+
+#player.bending {
+    animation: bend 0.3s ease;
+}
+
+#player.hitting {
+    animation: hit 0.4s ease;
+}
+
+@keyframes jump {
+    0% { 
+        transform: translateY(-50%) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-50%) rotate(-5deg);
+    }
+    50% { 
+        transform: translateY(-150px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(-150px) rotate(5deg);
+    }
+    100% { 
+        transform: translateY(-50%) rotate(0deg);
+    }
+}
+
+#player.jumping .leg {
+    animation: jumpLegs 0.6s ease;
+}
+
+@keyframes jumpLegs {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-20deg); }
+    50% { transform: rotate(-45deg); }
+    75% { transform: rotate(-20deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes bend {
+    0% { 
+        transform: translateY(-50%) rotateX(0deg) scaleY(1);
+    }
+    100% { 
+        transform: translateY(-50%) rotateX(45deg) scaleY(0.7);
+    }
+}
+
+#player.bending .leg {
+    animation: bendLegs 0.3s ease forwards;
+}
+
+@keyframes bendLegs {
+    0% { 
+        transform: rotate(0deg) scaleY(1);
+    }
+    100% { 
+        transform: rotate(15deg) scaleY(0.8);
+    }
+}
+
+#player.bending .arm {
+    animation: bendArms 0.3s ease forwards;
+}
+
+@keyframes bendArms {
+    0% { 
+        transform: rotate(0deg);
+    }
+    100% { 
+        transform: rotate(-30deg);
+    }
+}
+
+@keyframes hit {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+#dialogueBox {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 1.1em;
+    z-index: 50;
+    max-width: 400px;
+    text-align: center;
+}
+
+.thrownObject {
+    position: absolute;
+    font-size: 2em;
+    z-index: 5;
+    animation: throw 2s linear forwards;
+}
+
+@keyframes throw {
+    from {
+        right: 100px;
+        opacity: 1;
+    }
+    to {
+        left: -50px;
+        opacity: 0;
+    }
+}
+
+#gameOverScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    background: rgba(0,0,0,0.8);
+    padding: 40px;
+    border-radius: 20px;
+    z-index: 200;
+}
+
+#gameOverScreen h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #ff4757;
+}
+
+#finalScore {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+}
+
+#restartBtn {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background: #2ed573;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#restartBtn:hover {
+    background: #26d065;
+    transform: translateY(-2px);
+}
+
+#instructions {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    z-index: 100;
+}
+
+#instructions h3 {
+    margin-bottom: 10px;
+    color: #ffa502;
+}
+
+#instructions p {
+    margin-bottom: 5px;
+}
+
+#warningMessage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 20px;
+    font-size: 2em;
+    font-weight: bold;
+    z-index: 100;
+    text-align: center;
+    border: 4px solid #ff4757;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.8);
+    animation: warningPulse 0.5s ease-in-out infinite;
+}
+
+#warningText {
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+@keyframes warningPulse {
+    0%, 100% { 
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+#warningMessage.overhead {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+}
+
+#warningMessage.mid {
+    border-color: #4ecdc4;
+    box-shadow: 0 0 30px rgba(78, 205, 196, 0.8);
+}
+
+#warningMessage.low {
+    border-color: #45b7b8;
+    box-shadow: 0 0 30px rgba(69, 183, 184, 0.8);
+}
+
+#difficultyScreen {
+    text-align: center;
+    color: white;
+    padding: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#difficultyScreen h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+#difficultyScreen p {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+}
+
+#difficultyButtons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.difficulty-btn {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    min-width: 150px;
+}
+
+.difficulty-btn:hover {
+    background: #45b7b8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.difficulty-btn:active {
+    transform: translateY(0);
+}
+
+#trollMessage {
+    background: rgba(0,0,0,0.8);
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px solid #ff4757;
+    max-width: 500px;
+    animation: trollShake 0.5s ease-in-out infinite;
+}
+
+#trollMessage h2 {
+    color: #ff4757;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+#trollMessage p {
+    color: #ffa502;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+#continueBtn {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#continueBtn:hover {
+    background: #ff3742;
+    transform: scale(1.05);
+}
+
+@keyframes trollShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-1deg); }
+    75% { transform: rotate(1deg); }
+}
+
+#introAnimation {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#introGameArea {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+    overflow: hidden;
+}
+
+#introAngryMan {
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    animation: introAngryIdle 2s ease-in-out infinite;
+    width: 80px;
+    height: 160px;
+    position: relative;
+}
+
+#introAngryMan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65px;
+    height: 65px;
+    background: #fdbcb4;
+    border-radius: 50%;
+    border: 3px solid #e8a598;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+}
+
+#introAngryMan::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 40px;
+    background: #2c3e50;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+#introPlayer {
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    animation: introPlayerWalk 3s ease-in-out forwards;
+    width: 35px;
+    height: 80px;
+    position: relative;
+}
+
+#introPlayer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 28px;
+    background: #fdbcb4;
+    border-radius: 50%;
+    border: 2px solid #e8a598;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#introPlayer::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 18px;
+    background: #8b4513;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+#introDialogueBox {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 1.1em;
+    z-index: 50;
+    max-width: 400px;
+    text-align: center;
+    opacity: 0;
+    animation: introDialogueFadeIn 0.5s ease-in-out 2.5s forwards;
+}
+
+@keyframes introPlayerWalk {
+    0% {
+        left: 50px;
+        transform: translateY(-50%) scale(1);
+    }
+    30% {
+        left: 200px;
+        transform: translateY(-50%) scale(1.1);
+    }
+    60% {
+        left: 300px;
+        transform: translateY(-50%) scale(1);
+    }
+    100% {
+        left: 400px;
+        transform: translateY(-50%) scale(1);
+    }
+}
+
+@keyframes introAngryIdle {
+    0%, 100% { 
+        transform: translateY(-50%) rotate(0deg) scale(1);
+    }
+    50% { 
+        transform: translateY(-50%) rotate(2deg) scale(1.05);
+    }
+}
+
+@keyframes introDialogueFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes introPlayerWave {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    25% { transform: translateY(-50%) rotate(-15deg); }
+    75% { transform: translateY(-50%) rotate(15deg); }
+}
+
+.hitEffect {
+    position: absolute;
+    font-size: 3em;
+    color: #ff4757;
+    z-index: 15;
+    pointer-events: none;
+    animation: hitEffect 0.5s ease forwards;
+}
+
+@keyframes hitEffect {
+    0% {
+        opacity: 1;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+.whiteSplash {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+    animation: whiteSplashEffect 0.6s ease forwards;
+}
+
+@keyframes whiteSplashEffect {
+    0% {
+        opacity: 1;
+        transform: scale(0.3) rotate(0deg);
+    }
+    25% {
+        transform: scale(0.8) rotate(90deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+    }
+    75% {
+        transform: scale(1.5) rotate(270deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2) rotate(360deg);
+    }
+}
+
+.screenShake {
+    animation: screenShake 0.3s ease;
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes amongUsBounce {
+    0%, 100% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-60px) scale(1.1); }
+}
+
+@keyframes amongUsSus {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    25% { transform: translateY(-50%) rotate(-5deg) scale(1.05); }
+    75% { transform: translateY(-50%) rotate(5deg) scale(1.05); }
+}
+
